@@ -1,11 +1,10 @@
 #Libraries
 import os
+import gc
 from ST7735 import TFT
 from sysfont import sysfont
 from machine import SPI,Pin
 import time
-import math
-import _thread
 from machine import ADC
 
 #setup
@@ -25,27 +24,17 @@ tft.fill(TFT.BLACK)
     
 #functions
 def button_pressed(val):
-    print('button pressed')
-    button.irq(handler=None)
-    _thread.start_new_thread(runprog(),())
-    time.sleep(.5)
-    
- 
-def runprog():
-    button.irq(trigger=machine.Pin.IRQ_RISING , handler=None)
-    print('run',file)
     status_led.on()
+    print('button pressed')
+    button.irq(trigger=machine.Pin.IRQ_RISING , handler=None)
     exec(open(file).read())
-    print('end')
-    _thread.exit()
-    
-   
+    gc.collect()  #with gc.collect, this modules sometimes keep running non stop
 
-  
 #Program / Algorithm
 status_led.off()
      
 while True:
+    
     button.irq(trigger=machine.Pin.IRQ_RISING , handler=button_pressed)
     status_led.off()
     
